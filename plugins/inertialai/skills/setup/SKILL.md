@@ -3,7 +3,7 @@ name: setup
 description: Diagnose and guide InertialAI API key setup. Use when the user wants to configure the plugin or when API calls fail with authentication errors.
 ---
 
-Use this skill when the user says something like "set up inertial ai", "configure the api key", or when an InertialAI tool returns an auth error (HTTP 401 / "No InertialAI API key found").
+Use this skill when the user says something like "set up inertialai", "configure the api key", or when an InertialAI tool returns an auth error (HTTP 401 / "No InertialAI API key found").
 
 ## Cardinal rule: never accept the API key in chat
 

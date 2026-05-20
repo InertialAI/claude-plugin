@@ -29,7 +29,7 @@ import keyring
 from keyring.errors import KeyringError
 
 API_BASE = "https://inertialai.com"
-SERVICE = "inertial-ai"
+SERVICE = "inertialai"
 USERNAME = "default"
 
 

@@ -6,7 +6,7 @@ Time-series embedding and analysis tools for [Claude Code](https://docs.claude.c
 
 ```
 /plugin marketplace add InertialAI/claude-plugin
-/plugin install inertial-ai@inertial
+/plugin install inertialai@inertialai-plugins
 ```
 
 Then configure your API key (see below). Requires [`uv`](https://docs.astral.sh/uv/) on `PATH` — the MCP server runs as a `uv` script with inline dependencies, nothing else to install.
@@ -15,7 +15,7 @@ Then configure your API key (see below). Requires [`uv`](https://docs.astral.sh/
 
 The server resolves the key in this order: `INERTIAL_API_KEY` env var → OS keychain → none. Pick whichever fits your platform:
 
-- **OS keychain (recommended on macOS / Linux desktop / Windows).** In Claude Code, run `/inertial-ai:setup` — it walks you through running a one-time terminal command that reads the key via `getpass`, validates it, and stores it in your OS keychain. The key never enters the chat.
+- **OS keychain (recommended on macOS / Linux desktop / Windows).** In Claude Code, run `/inertialai:setup` — it walks you through running a one-time terminal command that reads the key via `getpass`, validates it, and stores it in your OS keychain. The key never enters the chat.
 - **Environment variable (works everywhere including headless Linux / WSL).** Add `export INERTIAL_API_KEY='your-key'` to `~/.zshrc` or `~/.bashrc`, restart your shell.
 
 Never paste your API key into a Claude Code prompt — it would land in transcripts and request logs. Use one of the two paths above.
@@ -25,7 +25,7 @@ Never paste your API key into a Claude Code prompt — it would land in transcri
 ```
 .
 ├── .claude-plugin/marketplace.json          # marketplace catalog
-└── plugins/inertial-ai/
+└── plugins/inertialai/
     ├── .claude-plugin/plugin.json           # plugin manifest
     ├── .mcp.json                            # declares the MCP server
     ├── server/server.py                     # MCP server wrapping /api/v1/embeddings

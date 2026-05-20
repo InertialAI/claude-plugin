@@ -1,5 +1,5 @@
 {
-  "name": "inertial-ai",
+  "name": "inertialai",
   "displayName": "InertialAI",
   "description": "Embed and analyze time-series data via the InertialAI API.",
   "version": "0.1.0",
@@ -8,7 +8,7 @@
     "email": "support@inertialai.com"
   },
   "homepage": "https://inertialai.com",
-  "repository": "https://github.com/inertialai/claude-plugin",
+  "repository": "https://github.com/InertialAI/claude-plugin",
   "license": "MIT",
   "keywords": ["time-series", "embeddings", "imu", "sensor", "inertialai"]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "inertial",
+  "name": "inertialai-plugins",
   "owner": {
     "name": "InertialAI",
     "email": "support@inertialai.com"
@@ -7,8 +7,8 @@
   "description": "Time-series analysis plugins powered by the InertialAI API.",
   "plugins": [
     {
-      "name": "inertial-ai",
-      "source": "./plugins/inertial-ai",
+      "name": "inertialai",
+      "source": "./plugins/inertialai",
       "description": "Embed and analyze time-series data via the InertialAI API.",
       "category": "data",
       "tags": ["time-series", "embeddings", "imu", "sensor"]

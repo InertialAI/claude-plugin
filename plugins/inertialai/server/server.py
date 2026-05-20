@@ -32,17 +32,17 @@ except Exception:
     _HAS_KEYRING = False
 
 API_BASE = os.environ.get("INERTIAL_API_BASE", "https://inertialai.com")
-KEYRING_SERVICE = "inertial-ai"
+KEYRING_SERVICE = "inertialai"
 KEYRING_USERNAME = "default"
 DATA_DIR = Path(
     os.environ.get("INERTIAL_DATA_DIR")
     or os.environ.get("CLAUDE_PLUGIN_DATA")
-    or Path.home() / ".inertial-ai"
+    or Path.home() / ".inertialai"
 )
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DATA_DIR / "embeddings.db"
 
-mcp = FastMCP("inertial-ai")
+mcp = FastMCP("inertialai")
 
 
 def _resolve_api_key() -> tuple[str | None, str]:
@@ -75,7 +75,7 @@ def _missing_key_error() -> dict[str, Any]:
     return {
         "error": "No InertialAI API key found.",
         "fix": (
-            "Run `/inertial-ai:setup` for guided setup, or set "
+            "Run `/inertialai:setup` for guided setup, or set "
             "INERTIAL_API_KEY in your shell, or run "
             f"`uv run --script {script}` in your terminal to store "
             "the key in your OS keychain."

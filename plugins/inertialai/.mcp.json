@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "inertial-ai": {
+    "inertialai": {
       "command": "uv",
       "args": [
         "run",
