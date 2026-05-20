@@ -3,6 +3,7 @@
 # dependencies = [
 #   "mcp>=1.2.0",
 #   "httpx>=0.27",
+#   "keyring>=24.0.0",
 # ]
 # ///
 """MCP server wrapping the InertialAI embeddings API.
@@ -23,8 +24,16 @@ from typing import Any
 import httpx
 from mcp.server.fastmcp import FastMCP
 
+try:
+    import keyring as _keyring
+
+    _HAS_KEYRING = True
+except Exception:
+    _HAS_KEYRING = False
+
 API_BASE = os.environ.get("INERTIAL_API_BASE", "https://inertialai.com")
-API_KEY = os.environ.get("INERTIAL_API_KEY")
+KEYRING_SERVICE = "inertial-ai"
+KEYRING_USERNAME = "default"
 DATA_DIR = Path(
     os.environ.get("INERTIAL_DATA_DIR")
     or os.environ.get("CLAUDE_PLUGIN_DATA")
@@ -34,6 +43,44 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DATA_DIR / "embeddings.db"
 
 mcp = FastMCP("inertial-ai")
+
+
+def _resolve_api_key() -> tuple[str | None, str]:
+    """Return (api_key, source) where source is 'env', 'keyring', or 'none'.
+
+    Env var wins so users can override stored credentials per-shell.
+    """
+    env = os.environ.get("INERTIAL_API_KEY")
+    if env:
+        return env, "env"
+    if _HAS_KEYRING:
+        try:
+            stored = _keyring.get_password(KEYRING_SERVICE, KEYRING_USERNAME)
+            if stored:
+                return stored, "keyring"
+        except Exception:
+            pass
+    return None, "none"
+
+
+def _setup_script_path() -> Path:
+    root = os.environ.get("CLAUDE_PLUGIN_ROOT")
+    if root:
+        return Path(root) / "scripts" / "setup-key.py"
+    return Path(__file__).resolve().parent.parent / "scripts" / "setup-key.py"
+
+
+def _missing_key_error() -> dict[str, Any]:
+    script = _setup_script_path()
+    return {
+        "error": "No InertialAI API key found.",
+        "fix": (
+            "Run `/inertial-ai:setup` for guided setup, or set "
+            "INERTIAL_API_KEY in your shell, or run "
+            f"`uv run --script {script}` in your terminal to store "
+            "the key in your OS keychain."
+        ),
+    }
 
 
 def _db() -> sqlite3.Connection:
@@ -94,8 +141,9 @@ async def create_embedding(
         dimensions: Optional embedding dimensionality.
         label: Optional label to associate with this embedding.
     """
-    if not API_KEY:
-        return {"error": "INERTIAL_API_KEY env var not set"}
+    api_key, _ = _resolve_api_key()
+    if not api_key:
+        return _missing_key_error()
     if time_series is None and text is None:
         return {"error": "Provide at least one of `time_series` or `text`"}
 
@@ -113,7 +161,7 @@ async def create_embedding(
         r = await client.post(
             f"{API_BASE}/api/v1/embeddings",
             json=payload,
-            headers={"Authorization": f"Bearer {API_KEY}"},
+            headers={"Authorization": f"Bearer {api_key}"},
         )
 
     if r.status_code >= 400:
@@ -332,6 +380,32 @@ def delete_embedding(handle: str) -> dict[str, Any]:
     deleted = cur.rowcount
     conn.close()
     return {"deleted": deleted}
+
+
+@mcp.tool()
+def check_setup() -> dict[str, Any]:
+    """Diagnose API key configuration. Use this when starting work, when an
+    API call fails with auth errors, or when the user asks how to set up
+    the plugin.
+
+    Returns whether a key is available, from which source, and the exact
+    terminal command to run if setup is needed.
+    """
+    api_key, source = _resolve_api_key()
+    script = _setup_script_path()
+    result: dict[str, Any] = {
+        "api_key_present": api_key is not None,
+        "source": source,
+        "api_base": API_BASE,
+        "data_dir": str(DATA_DIR),
+        "keyring_available": _HAS_KEYRING,
+    }
+    if api_key is None:
+        result["setup_command"] = f"uv run --script {script}"
+        result["env_var_alternative"] = (
+            "export INERTIAL_API_KEY='your-key'  # add to ~/.zshrc or ~/.bashrc"
+        )
+    return result
 
 
 if __name__ == "__main__":
