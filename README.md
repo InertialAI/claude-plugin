@@ -56,3 +56,7 @@ Embeddings persist in `${CLAUDE_PLUGIN_DATA}/embeddings.db`.
 ## Adding new models
 
 The API takes `model` as a parameter, so new embedding models work without a plugin update. New endpoint families (forecasting, classification-as-a-service, etc.) get new tools added to `server/server.py`.
+
+## Roadmap
+
+Currently Claude Code only. The MCP server runs as a local subprocess (`uv run --script`), which Cowork's hosted runtime doesn't support. Cowork compatibility is pending a hosted HTTP MCP gateway at `mcp.inertialai.com`; once that ships, the same plugin will work in both products.
