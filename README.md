@@ -28,14 +28,48 @@ Never paste your API key into a Claude Code prompt — it would land in transcri
 └── plugins/inertialai/
     ├── .claude-plugin/plugin.json           # plugin manifest
     ├── .mcp.json                            # declares the MCP server
-    ├── server/server.py                     # MCP server wrapping /api/v1/embeddings
     ├── scripts/setup-key.py                 # one-time interactive key installer
+    ├── server/                              # MCP server
+    │   ├── server.py                        # entry point (PEP 723 script): builds FastMCP, registers tools
+    │   ├── store.py                         # SQLite-backed embedding store + vector helpers
+    │   ├── auth.py                          # API key resolution + setup-error payload
+    │   └── tools/                           # one file per MCP tool, each a Tool subclass
+    │       ├── _base.py                     # Tool base class
+    │       ├── __init__.py                  # ALL_TOOLS registry
+    │       ├── create_embedding.py
+    │       ├── list_models.py
+    │       ├── compare.py
+    │       ├── find_similar.py
+    │       ├── classify.py
+    │       ├── list_embeddings.py
+    │       ├── delete_embedding.py
+    │       └── check_setup.py
     └── skills/                              # playbooks Claude auto-invokes
+        ├── TEMPLATE.md                      # copy this into skills/<name>/SKILL.md
         ├── analyze-imu-session/SKILL.md
         ├── find-anomalies/SKILL.md
         ├── compare-sessions/SKILL.md
         └── setup/SKILL.md
 ```
+
+## Adding a new MCP tool
+
+1. Create `plugins/inertialai/server/tools/<your_tool>.py` defining a subclass of `Tool` (`tools/_base.py`). Set `name = "<your_tool>"` and implement `run` (sync or async) with typed parameters and a docstring — FastMCP derives the JSON schema and description from it.
+2. Import the class in `tools/__init__.py` and append it to `ALL_TOOLS`.
+3. Restart the MCP server (or run `/reload-plugins`).
+
+No edits to `server.py` required.
+
+## Adding a new skill
+
+Copy `plugins/inertialai/skills/TEMPLATE.md` into a new directory:
+
+```
+mkdir plugins/inertialai/skills/<your-skill>/
+cp plugins/inertialai/skills/TEMPLATE.md plugins/inertialai/skills/<your-skill>/SKILL.md
+```
+
+Fill in the frontmatter and sections, then reload.
 
 ## Tools
 
